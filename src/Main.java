@@ -1,6 +1,8 @@
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 class Bus {
     private int busNumber;
@@ -35,38 +37,71 @@ class Bus {
     }
 }
 
-public class Main {
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
+class BusBookingApp extends JFrame {
+    private JTextField passengerNameField;
+    private JLabel statusLabel;
 
-        // Creating buses
-        Bus bus1 = new Bus(101, 50);
-        Bus bus2 = new Bus(102, 40);
+    private Bus bus1 = new Bus(101, 50);
+    private Bus bus2 = new Bus(102, 40);
 
-        System.out.println("Welcome to Bus Booking App!");
+    public BusBookingApp() {
+        setTitle("Bus Booking App");
+        setSize(400, 200);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
 
-        while (true) {
-            System.out.println("\nSelect a bus to book a seat (1 for Bus 101, 2 for Bus 102, 0 to exit): ");
-            int choice = scanner.nextInt();
-            scanner.nextLine(); // consume newline
+        JPanel panel = new JPanel();
+        panel.setLayout(null);
 
-            if (choice == 0) {
-                System.out.println("Thank you for using Bus Booking App. Goodbye!");
-                break;
+        JLabel nameLabel = new JLabel("Passenger Name:");
+        nameLabel.setBounds(30, 30, 120, 25);
+        panel.add(nameLabel);
+
+        passengerNameField = new JTextField();
+        passengerNameField.setBounds(150, 30, 200, 25);
+        panel.add(passengerNameField);
+
+        JButton bookButton = new JButton("Book Seat");
+        bookButton.setBounds(150, 70, 100, 25);
+        bookButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                bookSeat();
             }
+        });
+        panel.add(bookButton);
 
-            Bus selectedBus = choice == 1 ? bus1 : bus2;
+        statusLabel = new JLabel("");
+        statusLabel.setBounds(30, 110, 320, 25);
+        panel.add(statusLabel);
 
-            System.out.println("Enter passenger name: ");
-            String passengerName = scanner.nextLine();
+        add(panel);
+    }
+
+    private void bookSeat() {
+        String passengerName = passengerNameField.getText();
+        if (!passengerName.isEmpty()) {
+            int choice = JOptionPane.showOptionDialog(null, "Select a bus to book a seat:",
+                    "Bus Selection", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+                    null, new String[]{"Bus 101", "Bus 102"}, "Bus 101");
+
+            Bus selectedBus = (choice == JOptionPane.YES_OPTION) ? bus1 : bus2;
 
             if (selectedBus.bookSeat(passengerName)) {
-                System.out.println(passengerName + " booked a seat on Bus " + selectedBus.getBusNumber());
+                statusLabel.setText(passengerName + " booked a seat on Bus " + selectedBus.getBusNumber());
             } else {
-                System.out.println("Sorry, no available seats on Bus " + selectedBus.getBusNumber());
+                statusLabel.setText("Sorry, no available seats on Bus " + selectedBus.getBusNumber());
             }
+        } else {
+            statusLabel.setText("Please enter passenger name!");
         }
+    }
 
-        scanner.close();
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                new BusBookingApp().setVisible(true);
+            }
+        });
     }
 }
